@@ -4,7 +4,6 @@ import {
   Button,
   Card,
   CardContent,
-  Grid,
   Typography,
   Alert,
   CircularProgress,
@@ -102,8 +101,8 @@ const AIAssistant: React.FC = () => {
 
   return (
     <Box>
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <Box>
           <Card>
             <CardContent>
               <Box display="flex" alignItems="center" mb={2}>
@@ -113,8 +112,8 @@ const AIAssistant: React.FC = () => {
                 </Typography>
               </Box>
 
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={4}>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                <Box sx={{ flex: '1 1 300px', minWidth: '250px' }}>
                   <FormControl fullWidth>
                     <InputLabel>機能選択</InputLabel>
                     <Select
@@ -127,10 +126,10 @@ const AIAssistant: React.FC = () => {
                       <MenuItem value="optimize">設定最適化</MenuItem>
                     </Select>
                   </FormControl>
-                </Grid>
+                </Box>
 
                 {action !== 'optimize' && (
-                  <Grid item xs={12} md={4}>
+                  <Box sx={{ flex: '1 1 300px', minWidth: '250px' }}>
                     <TextField
                       label="分析ID"
                       fullWidth
@@ -139,11 +138,11 @@ const AIAssistant: React.FC = () => {
                       disabled={loading}
                       helperText="ログ分析で生成されたIDを入力"
                     />
-                  </Grid>
+                  </Box>
                 )}
 
                 {action === 'analyze' && (
-                  <Grid item xs={12} md={4}>
+                  <Box sx={{ flex: '1 1 300px', minWidth: '250px' }}>
                     <TextField
                       label="分析パターン"
                       fullWidth
@@ -152,11 +151,11 @@ const AIAssistant: React.FC = () => {
                       disabled={loading}
                       helperText="例: suspicious IP behavior"
                     />
-                  </Grid>
+                  </Box>
                 )}
 
                 {(action === 'recommend' || action === 'optimize') && (
-                  <Grid item xs={12} md={4}>
+                  <Box sx={{ flex: '1 1 300px', minWidth: '250px' }}>
                     <TextField
                       label="目的・目標"
                       fullWidth
@@ -165,10 +164,10 @@ const AIAssistant: React.FC = () => {
                       disabled={loading}
                       helperText="例: 誤検知を減らしつつセキュリティを向上"
                     />
-                  </Grid>
+                  </Box>
                 )}
 
-                <Grid item xs={12}>
+                <Box sx={{ width: '100%' }}>
                   <Button
                     variant="contained"
                     onClick={handleSubmit}
@@ -178,8 +177,8 @@ const AIAssistant: React.FC = () => {
                   >
                     {loading ? '分析中...' : 'AI分析開始'}
                   </Button>
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
 
               {error && (
                 <Alert severity="error" sx={{ mt: 2 }}>
@@ -188,10 +187,10 @@ const AIAssistant: React.FC = () => {
               )}
             </CardContent>
           </Card>
-        </Grid>
+        </Box>
 
         {results && (
-          <Grid item xs={12}>
+          <Box>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
@@ -288,9 +287,9 @@ const AIAssistant: React.FC = () => {
                 </Typography>
               </CardContent>
             </Card>
-          </Grid>
+          </Box>
         )}
-      </Grid>
+      </Box>
     </Box>
   );
 };

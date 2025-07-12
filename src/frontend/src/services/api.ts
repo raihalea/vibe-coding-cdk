@@ -1,11 +1,10 @@
 import axios from 'axios';
-import { config } from '../config';
 
 const apiClient = axios.create({
-  baseURL: config.API_BASE_URL,
+  baseURL: 'https://aqzcggujce.execute-api.us-east-1.amazonaws.com/prod',
   headers: {
     'Content-Type': 'application/json',
-    'x-api-key': config.API_KEY,
+    'x-api-key': '9ouhDraQJd6VZNSSwYunz4x8VTJw9bYtaKuL6s2m',
   },
 });
 

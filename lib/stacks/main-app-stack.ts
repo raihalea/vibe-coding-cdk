@@ -230,8 +230,6 @@ export class MainAppStack extends Stack {
     // Frontend CloudFront Distribution
     const websiteBucket = new s3.Bucket(this, 'WebsiteBucket', {
       bucketName: `waf-analyzer-frontend-v2-${this.account}-${this.region}`,
-      websiteIndexDocument: 'index.html',
-      websiteErrorDocument: 'error.html',
       publicReadAccess: false,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       removalPolicy: RemovalPolicy.DESTROY,
@@ -239,6 +237,7 @@ export class MainAppStack extends Stack {
       encryption: s3.BucketEncryption.S3_MANAGED,
     });
 
+    // Use OAI for simplicity and compatibility
     const originAccessIdentity = new cloudfront.OriginAccessIdentity(this, 'OAI', {
       comment: 'OAI for WAF Analyzer Frontend',
     });

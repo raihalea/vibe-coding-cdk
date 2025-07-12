@@ -124,11 +124,8 @@ deploy_stacks() {
     log "Starting deployment..."
     
     local STACKS=(
-        "${STACK_PREFIX}WafStack"
-        "${STACK_PREFIX}ApiStack" 
-        "${STACK_PREFIX}DemoAppStack"
-        "${STACK_PREFIX}DemoWafStack"
-        "${STACK_PREFIX}FrontendStack"
+        "${STACK_PREFIX}MainStack"
+        "${STACK_PREFIX}DemoStack"
     )
     
     if [ "$1" = "--all" ]; then
@@ -159,7 +156,7 @@ get_outputs() {
     
     # Frontend URL
     local FRONTEND_URL=$(aws cloudformation describe-stacks \
-        --stack-name ${STACK_PREFIX}FrontendStack \
+        --stack-name ${STACK_PREFIX}MainStack \
         --query 'Stacks[0].Outputs[?OutputKey==`DistributionDomainName`].OutputValue' \
         --output text 2>/dev/null || echo "Not deployed")
     
@@ -169,7 +166,7 @@ get_outputs() {
     
     # Demo App URL
     local DEMO_URL=$(aws cloudformation describe-stacks \
-        --stack-name ${STACK_PREFIX}DemoAppStack \
+        --stack-name ${STACK_PREFIX}DemoStack \
         --query 'Stacks[0].Outputs[?OutputKey==`DemoApiUrl`].OutputValue' \
         --output text 2>/dev/null || echo "Not deployed")
     
@@ -182,7 +179,7 @@ get_outputs() {
     
     # API URL
     local API_URL=$(aws cloudformation describe-stacks \
-        --stack-name ${STACK_PREFIX}ApiStack \
+        --stack-name ${STACK_PREFIX}MainStack \
         --query 'Stacks[0].Outputs[?OutputKey==`ApiUrl`].OutputValue' \
         --output text 2>/dev/null || echo "Not deployed")
     
@@ -210,7 +207,7 @@ verify_deployment() {
     
     # Check if demo app is responding
     local DEMO_URL=$(aws cloudformation describe-stacks \
-        --stack-name ${STACK_PREFIX}DemoAppStack \
+        --stack-name ${STACK_PREFIX}DemoStack \
         --query 'Stacks[0].Outputs[?OutputKey==`DemoApiUrl`].OutputValue' \
         --output text 2>/dev/null)
     

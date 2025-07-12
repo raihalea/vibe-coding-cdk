@@ -56,18 +56,23 @@ def create_architecture_diagram():
             
         with Cluster("Analysis Backend"):
             # Analysis API
-            analysis_api = Apigateway("Analysis API\nGateway")
+            analysis_api = Apigateway("Analysis API\n+ API Key Auth")
             
             with Cluster("Lambda Functions"):
-                log_analyzer = Lambda("Log Analyzer")
-                rule_manager = Lambda("Rule Manager")
-                ai_assistant = Lambda("AI Assistant")
+                log_analyzer = Lambda("Log Analyzer\n(S3 Processing)")
+                rule_manager = Lambda("Rule Manager\n(WAF Updates)")
+                ai_assistant = Lambda("AI Assistant\n(Bedrock)")
             
             # Data storage
-            analysis_db = Dynamodb("Analysis\nResults")
+            analysis_db = Dynamodb("Analysis Results\n& Rule Metadata")
             
             # AI service
-            bedrock = Bedrock("Amazon Bedrock\n(Claude)")
+            bedrock = Bedrock("Amazon Bedrock\n(Claude-3)")
+        
+        with Cluster("Rule Management Features"):
+            rule_templates = Lambda("Rule Templates\n(SQLi, XSS, Rate)")
+            custom_rules = Lambda("Custom Rules\n(ByteMatch)")
+            managed_rules = Lambda("Managed Rules\n(AWS Groups)")
         
         # User interactions
         users >> route53
@@ -77,23 +82,27 @@ def create_architecture_diagram():
         demo_api << Edge(color="red", style="bold") << demo_waf
         
         # Logging flow
-        demo_waf >> Edge(label="WAF Logs") >> firehose >> s3_logs
-        main_waf >> Edge(label="System Logs") >> firehose
+        demo_waf >> Edge(label="WAF Logs", color="blue") >> firehose >> s3_logs
+        main_waf >> Edge(label="System Logs", color="blue") >> firehose
         
         # Analysis flow
         users >> cloudfront
         s3_frontend >> Edge(label="API Calls") >> analysis_api
         
         analysis_api >> log_analyzer >> s3_logs
-        analysis_api >> rule_manager >> demo_waf
+        analysis_api >> rule_manager
         analysis_api >> ai_assistant >> bedrock
+        
+        # Rule management flow
+        rule_manager >> [rule_templates, custom_rules, managed_rules]
+        [rule_templates, custom_rules, managed_rules] >> Edge(label="Apply Rules", color="green") >> demo_waf
         
         log_analyzer >> analysis_db
         rule_manager >> analysis_db
         ai_assistant >> analysis_db
         
-        # Feedback loop
-        ai_assistant >> Edge(label="Rule Recommendations", style="dashed") >> rule_manager
+        # AI-powered feedback loop
+        ai_assistant >> Edge(label="Smart Recommendations", style="dashed", color="purple") >> rule_manager
 
 def create_data_flow_diagram():
     """Create data flow diagram"""
@@ -184,54 +193,55 @@ def create_security_architecture():
 def create_deployment_architecture():
     """Create deployment and infrastructure diagram"""
     
-    with Diagram("Deployment Architecture (CDK Stacks)", 
+    with Diagram("Deployment Architecture (Consolidated CDK Stacks)", 
                  filename="architecture/deployment-architecture", 
                  show=False, 
                  direction="TB"):
         
-        with Cluster("WafAnalyzerWafStack"):
-            waf_main = WAF("Main WAF")
-            s3_logs = S3("Log Bucket")
-            firehose_main = KinesisDataFirehose("Log Delivery")
-        
-        with Cluster("WafAnalyzerApiStack"):
-            api_gw = Apigateway("Analysis API")
+        with Cluster("WafAnalyzerMainStack (Consolidated)"):
+            # WAF & Logging
+            waf_main = WAF("Main WAF\n+ Rate Limiting")
+            s3_logs = S3("Log Bucket\n(Lifecycle)")
+            firehose_main = KinesisDataFirehose("Log Delivery\nStream")
+            
+            # API Layer
+            api_gw = Apigateway("Analysis API\n+ API Key")
             lambda_cluster = [
-                Lambda("Log Analyzer"),
-                Lambda("Rule Manager"), 
-                Lambda("AI Assistant")
+                Lambda("Log Analyzer\n(S3+DynamoDB)"),
+                Lambda("Rule Manager\n(WAF Updates)"), 
+                Lambda("AI Assistant\n(Bedrock)")
             ]
-            dynamodb_main = Dynamodb("Analysis DB")
+            dynamodb_main = Dynamodb("Analysis Results\n(Point-in-Time)")
+            
+            # Frontend
+            cloudfront_main = CloudFront("Distribution\n(OAI)")
+            s3_frontend = S3("React Frontend\n(Auto-delete)")
         
-        with Cluster("WafAnalyzerFrontendStack"):
-            cloudfront_main = CloudFront("Distribution")
-            s3_frontend = S3("Frontend Assets")
-        
-        with Cluster("WafAnalyzerDemoAppStack"):
+        with Cluster("WafAnalyzerDemoStack"):
             demo_api = Apigateway("Demo API")
             demo_lambdas = [
-                Lambda("Demo Website"),
-                Lambda("Demo API")
+                Lambda("Demo Website\n(Attack Sim)"),
+                Lambda("Demo API\n(Vulnerable)")
             ]
             demo_db = Dynamodb("Demo Data")
-        
-        with Cluster("WafAnalyzerDemoWafStack"):
-            demo_waf = WAF("Demo WAF")
-            firehose_demo = KinesisDataFirehose("Demo Logs")
+            demo_waf = WAF("Demo WAF\n(Comprehensive)")
         
         with Cluster("External Services"):
-            bedrock_service = Bedrock("Bedrock")
+            bedrock_service = Bedrock("Amazon Bedrock\n(Claude-3)")
         
-        # Dependencies
-        demo_waf >> firehose_demo >> s3_logs
+        # Consolidated stack internal connections
         waf_main >> firehose_main >> s3_logs
-        
         api_gw >> lambda_cluster[0] >> s3_logs
-        lambda_cluster[1] >> demo_waf
-        lambda_cluster[2] >> bedrock_service
-        
+        api_gw >> lambda_cluster[1] >> waf_main
+        api_gw >> lambda_cluster[2] >> bedrock_service
+        lambda_cluster >> dynamodb_main
         cloudfront_main >> s3_frontend
-        s3_frontend >> Edge(style="dashed") >> api_gw
+        s3_frontend >> Edge(style="dashed", label="API Calls") >> api_gw
+        
+        # Demo stack connections
+        demo_api >> demo_lambdas[0]
+        demo_api >> demo_lambdas[1] >> demo_db
+        demo_waf >> Edge(label="Demo Logs") >> firehose_main
 
 if __name__ == "__main__":
     print("Generating AWS WAF Log Analyzer architecture diagrams...")

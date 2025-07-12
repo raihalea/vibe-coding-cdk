@@ -6,3 +6,24 @@ node_modules
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+
+# Python virtual environment for architecture diagrams
+architecture/venv/
+architecture/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment files
+.env
+.env.local

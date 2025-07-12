@@ -1,0 +1,19 @@
+{
+  "name": "waf-analyzer-scripts",
+  "version": "1.0.0",
+  "description": "Helper scripts for WAF log analyzer",
+  "main": "generate-traffic.js",
+  "scripts": {
+    "traffic:light": "node generate-traffic.js $DEMO_URL --legitimate-only --rpm 30 --duration 3",
+    "traffic:attack": "node generate-traffic.js $DEMO_URL --malicious-only --rpm 20 --duration 2",
+    "traffic:mixed": "node generate-traffic.js $DEMO_URL --rpm 60 --duration 5",
+    "traffic:heavy": "node generate-traffic.js $DEMO_URL --rpm 120 --duration 10"
+  },
+  "keywords": ["aws", "waf", "security", "testing"],
+  "author": "WAF Analyzer Team",
+  "license": "MIT",
+  "dependencies": {},
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

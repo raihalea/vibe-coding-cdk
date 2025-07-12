@@ -133,7 +133,7 @@ cd architecture && ./generate.sh
 1. **WafAnalyzerMainStack**: メインのWAF分析アプリケーション
 2. **WafAnalyzerDemoStack**: デモ環境とテスト用WAF
 
-### メインアプリケーション アーキテクチャ
+### メインアプリケーション アーキテクチャ図
 
 ![WAF Log Analyzer Main Architecture](./generated-diagrams/waf-analyzer-main-architecture.png)
 
